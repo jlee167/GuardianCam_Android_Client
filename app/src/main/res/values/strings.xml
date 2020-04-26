@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">guardiancamera_wifi</string>
+    <string name="currentUser"> </string>
+
+    <string name="STAT_CAM_CONNECTED"> Camera Connected </string>
+    <string name="STAT_CAM_DISCONNECTED"> Camera Disconnected </string>
+    <string name="STAT_SERVER_CONNECTED"> Server Connected </string>
+    <string name="STAT_SERVER_DISCONNECTED"> Server Disconnected </string>
+    <string name="STAT_CAM_RECORDING"> Idle </string>
+    <string name="STAT_CAM_IDLE"> Recording </string>
+
+    <string name="INDEX_LOGIN_METHOD"> Login Method </string>
+    <string name="LOGIN_GOOGLE"> GOOGLE </string>
+    <string name="LOGIN_KAKAO"> KAKAO </string>
+
+    <string name="AUTH_SERVER_ADDRESS">www.lazyweb.com</string>
+    <string name="STREAMING_SERVER_ADDRESS">127.0.0.1</string>
+</resources>
