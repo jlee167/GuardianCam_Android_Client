@@ -116,6 +116,5 @@ public class MainMenuActivity extends AppCompatActivity {
         final Intent captureStopIntent = new Intent(this, CamStreamer.class);
         if (CamStreamer.isRunning())
             stopService(captureStopIntent);
-
     }
 }

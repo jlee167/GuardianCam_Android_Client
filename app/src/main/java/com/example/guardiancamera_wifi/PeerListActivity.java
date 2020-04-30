@@ -42,7 +42,6 @@ class PeerData {
 }
 
 
-
 /**
  *  Adapter for the recyclerview displaying list of peers.
  */
@@ -138,6 +137,9 @@ public class PeerListActivity extends AppCompatActivity {
     // AuthHandler for fetching peer list
     LazywebAuthHandler authHandler;
 
+    private void refreshPeerList() {
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -155,10 +157,10 @@ public class PeerListActivity extends AppCompatActivity {
         peerListAdapter = new RecyclerViewAdapter();
         peerList.setAdapter(peerListAdapter);
 
-
         try {
             authHandler = new LazywebAuthHandler (this, getIntent());
-        } catch (MalformedURLException e) {
+        } catch (
+                MalformedURLException e) {
             e.printStackTrace();
         }
     }
@@ -166,8 +168,8 @@ public class PeerListActivity extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-
         super.onStart();
+
     }
 
 

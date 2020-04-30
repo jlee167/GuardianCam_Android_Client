@@ -13,6 +13,7 @@
     <string name="LOGIN_GOOGLE"> GOOGLE </string>
     <string name="LOGIN_KAKAO"> KAKAO </string>
 
-    <string name="AUTH_SERVER_ADDRESS">www.lazyweb.com</string>
+    <string name="AUTH_SERVER_ADDRESS">www.lazyweb.com/user_register.php</string>
     <string name="STREAMING_SERVER_ADDRESS">127.0.0.1</string>
+
 </resources>

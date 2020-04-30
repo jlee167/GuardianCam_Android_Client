@@ -2,12 +2,17 @@ package com.example.guardiancamera_wifi;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 
 import com.kakao.auth.IApplicationConfig;
 import com.kakao.auth.KakaoAdapter;
 import com.kakao.auth.KakaoSDK;
 
+import java.net.MalformedURLException;
+
 public class MyApplication extends Application {
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -25,5 +30,7 @@ public class MyApplication extends Application {
                 };
             }
         });
+
+
     }
 }

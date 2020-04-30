@@ -6,10 +6,7 @@ import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.kakao.auth.ApiResponseCallback;
-import com.kakao.auth.AuthService;
 import com.kakao.auth.Session;
-import com.kakao.auth.network.response.AccessTokenInfoResponse;
 import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
 import com.kakao.usermgmt.callback.MeV2ResponseCallback;
@@ -40,6 +37,10 @@ public class LazywebAuthHandler {
     // Objects for auth server connection (http)
     URL authServerUrl, streamingServerUrl;
     HttpURLConnection authServerConnection;
+    boolean connectionStatus;
+
+    OutputStream streamToAuthServer;
+    InputStream streamFromAuthServer;
 
 
     /**
@@ -54,6 +55,7 @@ public class LazywebAuthHandler {
         callerContext = context;
         callerIntent = intent;
         authServerUrl = new URL(callerContext.getString(R.string.AUTH_SERVER_ADDRESS));
+        connectionStatus = false;
     }
 
 
@@ -63,29 +65,6 @@ public class LazywebAuthHandler {
      */
     public String getKakaoToken() {
         return Session.getCurrentSession().getTokenInfo().getAccessToken();
-    }
-
-
-
-    /**
-     * Connect to the authentication server (Http protocol)
-     * Pass Google or Kakao authentication token to the server for validation.
-     *
-     * @throws IOException
-     */
-    public void connect() throws IOException {
-        authServerConnection = (HttpURLConnection) authServerUrl.openConnection();
-        authServerConnection.setDoOutput(true);
-        authServerConnection.setChunkedStreamingMode(0);
-        OutputStream outputStream = new BufferedOutputStream(authServerConnection.getOutputStream());
-        InputStream inputStream = new BufferedInputStream(authServerConnection.getInputStream());
-        if (isSignedWithGoogle()) {
-            String token_packet = "GoogleIdToken=" +  googleAccount.getIdToken();
-            outputStream.write(token_packet.getBytes());
-        }
-        else if (isSignedWithKakao()) {
-
-        }
     }
 
 
@@ -195,7 +174,34 @@ public class LazywebAuthHandler {
     }
 
 
+    /**
+     * Connect to the authentication server (Http protocol)
+     * Pass Google or Kakao authentication token to the server for validation.
+     *
+     * @throws IOException
+     */
+    public boolean connect() throws IOException {
+        byte [] serverMessage = new byte[20];
 
+        if (!isSignedWithKakao() && !isSignedWithGoogle())
+            return false;
+
+        authServerConnection = (HttpURLConnection) authServerUrl.openConnection();
+        authServerConnection.setDoOutput(true);
+        authServerConnection.setChunkedStreamingMode(0);
+        streamToAuthServer = new BufferedOutputStream(authServerConnection.getOutputStream());
+        streamFromAuthServer = new BufferedInputStream(authServerConnection.getInputStream());
+
+        String token_packet = isSignedWithGoogle() ? "GoogleIdToken=" +  googleAccount.getIdToken() :
+                                    (isSignedWithKakao() ? "KakaoIdToken=" + getKakaoToken() : "");
+        Log.i("HTTP Token Ready", "Token: " + token_packet);
+        streamToAuthServer.write(token_packet.getBytes());
+
+        if (streamFromAuthServer.available() > 0)
+            streamFromAuthServer.read(serverMessage);
+
+        return true;
+    }
 
 
 }
