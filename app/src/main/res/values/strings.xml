@@ -2,6 +2,7 @@
     <string name="app_name">guardiancamera_wifi</string>
     <string name="currentUser"> </string>
 
+    <string name="TITLE_APP"> Lazyboy\'s\nGuardianCam </string>
     <string name="STAT_CAM_CONNECTED"> Camera Connected </string>
     <string name="STAT_CAM_DISCONNECTED"> Camera Disconnected </string>
     <string name="STAT_SERVER_CONNECTED"> Server Connected </string>

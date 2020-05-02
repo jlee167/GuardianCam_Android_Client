@@ -20,9 +20,10 @@ public class MainMenuActivity extends AppCompatActivity {
     TextView settingBtn;
 
     // Status flags for camera and server
-    boolean camRecordingStat;
-    boolean camConnectionStat;
-    boolean serverConnectionStat;
+    boolean statCamRecording;
+    boolean statCamConnection;
+    boolean statServerConnection;
+
 
     /**
      *  Create activity intents and initialize control buttons' UI.
@@ -51,7 +52,7 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         });
 
-        final Intent peerListIntent = new Intent(this, PeerListActivity.class);
+        final Intent peerListIntent = new Intent(this, PeersActivity.class);
         peerListIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
         peerListBtn = (TextView) findViewById(R.id.peerListBtn);
         peerListBtn.setOnClickListener(new View.OnClickListener() {
@@ -78,13 +79,12 @@ public class MainMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_menu);
 
         // Initialize status flags
-        camRecordingStat = false;
-        camConnectionStat = false;
-        serverConnectionStat = false;
+        statCamRecording = false;
+        statCamConnection = false;
+        statServerConnection = false;
 
         // Initialize Control Buttons
         initButtons();
-
     }
 
 

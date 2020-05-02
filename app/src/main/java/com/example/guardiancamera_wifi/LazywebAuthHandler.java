@@ -1,7 +1,7 @@
 package com.example.guardiancamera_wifi;
 
 import android.content.Context;
-import android.content.Intent;
+import android.util.Base64;
 import android.util.Log;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -15,6 +15,9 @@ import com.kakao.usermgmt.response.model.Profile;
 import com.kakao.usermgmt.response.model.UserAccount;
 import com.kakao.util.OptionalBoolean;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -23,50 +26,84 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
 
 public class LazywebAuthHandler {
 
+    public final static int AUTHENTICATOR_KAKAO = 0;
+    public final static int AUTHENTICATOR_GOOGLE = 1;
+
+    private int authenticator;
+
     // Caller activity context & passed intent
-    Context callerContext;
-    Intent callerIntent;
+    private Context appContext;
 
     // Login Information
-    GoogleSignInAccount googleAccount;
-    String socialAuthProvider;
+    private GoogleSignInAccount googleAccount;
+    private String socialAuthProvider;
 
     // Objects for auth server connection (http)
-    URL authServerUrl, streamingServerUrl;
-    HttpURLConnection authServerConnection;
-    boolean connectionStatus;
+    private URL authServerUrl, streamingServerUrl;
+    private HttpURLConnection authServerConnection;
+    private boolean lastConnStatus;
 
-    OutputStream streamToAuthServer;
-    InputStream streamFromAuthServer;
+    private OutputStream streamToAuthServer;
+    private InputStream streamFromAuthServer;
 
 
     /**
      * Default Constructor.
      * Get the owner's environments and copy to the local variables.
      *
-     * @param context  Owner's context
-     * @param intent   Owner's intents from its parent activity
+     * @param applicationContext
+     *      Current application's context
+     *
      * @throws MalformedURLException
      */
-    LazywebAuthHandler (Context context, Intent intent) throws MalformedURLException {
-        callerContext = context;
-        callerIntent = intent;
-        authServerUrl = new URL(callerContext.getString(R.string.AUTH_SERVER_ADDRESS));
-        connectionStatus = false;
+    LazywebAuthHandler (Context applicationContext, int auth) throws IOException {
+        appContext = applicationContext;
+        authenticator = auth;
+        authServerUrl = new URL(appContext.getString(R.string.AUTH_SERVER_ADDRESS));
+        authServerConnection = (HttpURLConnection) authServerUrl.openConnection();
+
+        // Use POST method
+        authServerConnection.setDoOutput(true);
+        authServerConnection.setChunkedStreamingMode(0);
+        authServerConnection.setRequestProperty("Content-Type", "application/json; utf-8");
+
+
+        // Get IO streams from HTTP connection object
+        streamToAuthServer = new BufferedOutputStream(authServerConnection.getOutputStream());
+        streamFromAuthServer = new BufferedInputStream(authServerConnection.getInputStream());
     }
 
 
     /**
      * @return
-     *      Kakao Token in string
+     *      Current account authentiator
      */
-    public String getKakaoToken() {
+    public int getAuthenticator() {
+        return this.authenticator;
+    }
+
+    /**
+     * @return
+     *      Kakao Access Token in string
+     */
+    public String getKakaoAccessToken() {
         return Session.getCurrentSession().getTokenInfo().getAccessToken();
     }
 
+
+    /**
+     * @return
+     *      Google Access Token in string
+     */
+    public String getGoogleAccessToken() {
+        return googleAccount.getIdToken();
+    }
 
     /**
      * Check if the user is signed in with Google Account
@@ -75,7 +112,7 @@ public class LazywebAuthHandler {
      *      True if user signed in with Google Account
      */
     public boolean isSignedWithGoogle(){
-        return socialAuthProvider.equals(callerContext.getResources().getString(R.string.LOGIN_GOOGLE));
+        return socialAuthProvider.equals(appContext.getResources().getString(R.string.LOGIN_GOOGLE));
     }
 
 
@@ -86,7 +123,7 @@ public class LazywebAuthHandler {
      *      True if user signed in with Kakao Account
      */
     public boolean isSignedWithKakao() {
-        return socialAuthProvider.equals(callerContext.getResources().getString(R.string.LOGIN_KAKAO));
+        return socialAuthProvider.equals(appContext.getResources().getString(R.string.LOGIN_KAKAO));
     }
 
 
@@ -97,12 +134,6 @@ public class LazywebAuthHandler {
      *      True if signed in with Kakao or Google
      */
     public boolean getAccount() {
-        /**
-         *  Handle login results from either Kakao or Google
-         */
-
-        // Get the user's social authentication provider from the owner activity's intent.
-        socialAuthProvider = callerIntent.getStringExtra(callerContext.getResources().getString(R.string.INDEX_LOGIN_METHOD));
 
         // Extract Kakao user information
         if (isSignedWithKakao()){
@@ -160,9 +191,8 @@ public class LazywebAuthHandler {
 
         // Extract Google user information
         else if (isSignedWithGoogle()){
-            googleAccount = GoogleSignIn.getLastSignedInAccount(callerContext);
-            if (googleAccount == null)
-                return false;
+            googleAccount = GoogleSignIn.getLastSignedInAccount(appContext);
+            return googleAccount != null;
         }
 
         // If signed in with neither Google or Kakao, something is wrong. Handle accordingly
@@ -179,29 +209,126 @@ public class LazywebAuthHandler {
      * Pass Google or Kakao authentication token to the server for validation.
      *
      * @throws IOException
+     *
+     * Todo:
+     *      Add Timeout Routine for HTTP response
      */
-    public boolean connect() throws IOException {
-        byte [] serverMessage = new byte[20];
+    public LazyWebUserInfo getUserInfo() throws IOException, JSONException {
+        byte [] serverMessageBytes;
+        String serverMessage;
+
 
         if (!isSignedWithKakao() && !isSignedWithGoogle())
-            return false;
+            return null;
 
-        authServerConnection = (HttpURLConnection) authServerUrl.openConnection();
-        authServerConnection.setDoOutput(true);
-        authServerConnection.setChunkedStreamingMode(0);
-        streamToAuthServer = new BufferedOutputStream(authServerConnection.getOutputStream());
-        streamFromAuthServer = new BufferedInputStream(authServerConnection.getInputStream());
-
-        String token_packet = isSignedWithGoogle() ? "GoogleIdToken=" +  googleAccount.getIdToken() :
-                                    (isSignedWithKakao() ? "KakaoIdToken=" + getKakaoToken() : "");
-        Log.i("HTTP Token Ready", "Token: " + token_packet);
-        streamToAuthServer.write(token_packet.getBytes());
-
+        // Check for any pending operation
+        // Todo: Make custom exception for pending operations
         if (streamFromAuthServer.available() > 0)
-            streamFromAuthServer.read(serverMessage);
+            throw new IOException();
+        else
+            streamToAuthServer.flush();
 
-        return true;
+
+        /*
+         *       Send Access Token information to Auth Server to retrieve
+         *       relevant data about current user
+         */
+        JSONObject tokens_json = new JSONObject();
+        if (isSignedWithGoogle()){
+            tokens_json.put("AccessToken", getGoogleAccessToken());
+            tokens_json.put("Authenticator", "Google");
+        }
+        else if (isSignedWithKakao()){
+            tokens_json.put("AccessToken", getKakaoAccessToken());
+            tokens_json.put("Authenticator", "Kakao");
+        }
+        else {
+            /* Todo: Make custom Exception for authentication error */
+        }
+        streamToAuthServer.write(tokens_json.toString().getBytes(StandardCharsets.UTF_8));
+        Log.i("AUTH_SERVER_INIT", "HTTP Access Requested" + tokens_json.toString());
+
+
+        /*
+         *      Wait for HTTP response from server.
+         *      The response should contain JSON packet containing user information.
+         */
+        /* Todo: Insert waiting (wiith timeout) routine for HTTP response */
+        if (streamFromAuthServer.available() > 0) {
+            serverMessageBytes = new byte[streamFromAuthServer.available()];
+            streamFromAuthServer.read(serverMessageBytes);
+            serverMessage = Arrays.toString(serverMessageBytes);
+
+            LazyWebUserInfo user = new LazyWebUserInfo();
+            user.setWithJSON(new JSONObject(serverMessage));
+            return user;
+        }
+
+        return null;
     }
 
+
+    /**
+     * Connect to the authentication server (Http protocol)
+     * Pass Google or Kakao authentication token to the server for validation.
+     *
+     * @throws IOException
+     *
+     * Todo:
+     *      Add Timeout Routine for HTTP response
+     */
+    public LazyWebUserInfo [] getPeers() throws IOException, JSONException {
+        byte [] serverMessageBytes;
+        String serverMessage;
+
+
+        if (!isSignedWithKakao() && !isSignedWithGoogle())
+            return null;
+
+        // Check for any pending operation
+        // Todo: Make custom exception for pending operations
+        if (streamFromAuthServer.available() > 0)
+            throw new IOException();
+        else
+            streamToAuthServer.flush();
+
+
+        /*
+         *       Send Access Token information to Auth Server to retrieve
+         *       relevant data about current user
+         */
+        JSONObject tokens_json = new JSONObject();
+        if (isSignedWithGoogle()){
+            tokens_json.put("AccessToken", getGoogleAccessToken());
+            tokens_json.put("Authenticator", "Google");
+        }
+        else if (isSignedWithKakao()){
+            tokens_json.put("AccessToken", getKakaoAccessToken());
+            tokens_json.put("Authenticator", "Kakao");
+        }
+        else {
+            /* Todo: Make custom Exception for authentication error */
+        }
+        streamToAuthServer.write(tokens_json.toString().getBytes(StandardCharsets.UTF_8));
+        Log.i("AUTH_SERVER_INIT", "HTTP Access Requested" + tokens_json.toString());
+
+
+        /*
+         *      Wait for HTTP response from server.
+         *      The response should contain JSON packet containing user information.
+         */
+        /* Todo: Insert waiting (wiith timeout) routine for HTTP response */
+        if (streamFromAuthServer.available() > 0) {
+            serverMessageBytes = new byte[streamFromAuthServer.available()];
+            streamFromAuthServer.read(serverMessageBytes);
+            serverMessage = Arrays.toString(serverMessageBytes);
+
+            LazyWebUserInfo [] user = new LazyWebUserInfo [10];
+            user[0].setWithJSON(new JSONObject(serverMessage));
+            return user;
+        }
+
+        return null;
+    }
 
 }

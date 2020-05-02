@@ -68,11 +68,10 @@ public class CamStreamer extends Service {
     private StreamHandler streamHandler;
     private Looper serviceLooper;
 
-    // IP addresses for Self (Android Device with hotpost), Camera, and Streaming Server
+    // IP addresses and ports for Self (Android Device with hotpost), Camera, and Streaming Server
     private final String IP_HOST = "192.168.43.1";
     private final String IP_CAM = "192.168.43.74";
     private final String IP_SERVER = "192.168.43.74";
-
     private final int PORT_COMMAND = 8000;
     private final int PORT_STREAM_IN = 8001;
     private final int PORT_STREAM_OUT = 8002;
@@ -82,11 +81,6 @@ public class CamStreamer extends Service {
     private final byte CAM_CMD_REQUEST_SERIAL_ID = 0x42;
     private final byte CAM_CMD_SET_FRAMESIZE = 0X43;
 
-    // FFMPEG command and return code variables
-    private final String ffmpegCommandHeader = "-i ";
-    private final String ffmpegInAddress = "udp://" + IP_CAM + ":" + PORT_STREAM_IN + " ";
-    private final String ffmpegCodec = "-c copy -f mjpeg ";
-    private final String ffmpegOutAddress = "udp://" + IP_CAM + ":" + PORT_STREAM_OUT + " ";
     private int rc;
 
 
@@ -282,18 +276,6 @@ public class CamStreamer extends Service {
         super.onStartCommand(intent, flags, startId);
 
         /*
-        rc = FFmpeg.execute(ffmpegCommandHeader + ffmpegInAddress + ffmpegCodec + ffmpegOutAddress);
-
-        if (rc == RETURN_CODE_SUCCESS) {
-            Log.i(Config.TAG, "Command execution completed successfully.");
-        } else if (rc == RETURN_CODE_CANCEL) {
-            Log.i(Config.TAG, "Command execution cancelled by user.");
-        } else {
-            Log.i(Config.TAG, String.format("Command execution failed with rc=%d and the output below.", rc));
-            Config.printLastCommandOutput(Log.INFO);
-        }
-
-
         try {
             camCommandSocket.connect(new InetSocketAddress(IP_CAM, PORT_COMMAND));
         } catch (IOException ex) {

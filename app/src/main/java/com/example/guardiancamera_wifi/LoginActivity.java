@@ -1,6 +1,5 @@
 package com.example.guardiancamera_wifi;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,14 +19,8 @@ import com.kakao.auth.ApiResponseCallback;
 import com.kakao.auth.AuthService;
 import com.kakao.auth.ISessionCallback;
 import com.kakao.auth.Session;
-import com.kakao.auth.authorization.accesstoken.AccessTokenRequest;
 import com.kakao.auth.network.response.AccessTokenInfoResponse;
 import com.kakao.network.ErrorResult;
-import com.kakao.usermgmt.UserManagement;
-import com.kakao.usermgmt.callback.MeV2ResponseCallback;
-import com.kakao.usermgmt.response.MeV2Response;
-import com.kakao.usermgmt.response.model.Profile;
-import com.kakao.usermgmt.response.model.UserAccount;
 import com.kakao.util.exception.KakaoException;
 
 public class LoginActivity extends AppCompatActivity {
@@ -36,9 +29,16 @@ public class LoginActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     private static final int RC_GOOGLE_SIGN_IN = 7;
 
+
     /**
      *  Kakao session callback function.
+     *  Handles Kakao login process.
      *
+     *  On login success:
+     *      Starts next activity and passes 'Kakao' as login method in the intent.
+     *
+     *  On login failure:
+     *      Prints error message to log
      */
     private ISessionCallback sessionCallback = new ISessionCallback() {
         @Override
@@ -68,8 +68,20 @@ public class LoginActivity extends AppCompatActivity {
                     });
 
 
+            // Connect to Lazyweb authentication server and retrieve this user's personal information
+            /* Todo: Include in the future
+            try {
+                MyApplication.authHandler = new LazywebAuthHandler(getApplicationContext(),
+                                                            LazywebAuthHandler.AUTHENTICATOR_KAKAO);
+                MyApplication.currentUser = MyApplication.authHandler.getUserInfo();
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+                return;
+            }
+            */
             Intent intent = new Intent(getApplicationContext(), MainMenuActivity.class);
-            intent.putExtra(getResources().getString(R.string.INDEX_LOGIN_METHOD), getResources().getString(R.string.LOGIN_KAKAO));
+            intent.putExtra(getResources().getString(R.string.INDEX_LOGIN_METHOD), getResources().
+                                                                    getString(R.string.LOGIN_KAKAO));
             startActivity(intent);
         }
 
@@ -104,10 +116,9 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-
     /**
      * Initialize social login environment.
-     * Construct Google signin object and add Kakao session callback.
+     * Create Google sign-in object and add Kakao session callback.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,8 +137,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     /**
-     *      Initialize Google Signin BUtton.
-     *      Kakao button already contains onclick method.
+     *      Initialize Google Signin button with Google authentication event.
+     *      Kakao button already contains onClick method without any initialization.
      */
     @Override
     protected void onStart() {
@@ -187,7 +198,19 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Start main mennu activity with intent from above codes.
+        // Connect to Lazyweb authentication server and retrieve this user's personal information
+        /*  Todo: Include in the future
+        try {
+            MyApplication.authHandler = new LazywebAuthHandler(getApplicationContext(),
+                                                        LazywebAuthHandler.AUTHENTICATOR_GOOGLE);
+            MyApplication.currentUser = MyApplication.authHandler.getUserInfo();
+        } catch (IOException | JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+        */
+
+        // Start main menu activity with intent from above codes.
         super.onActivityResult(requestCode, resultCode, data);
         startActivity(intent);
     }

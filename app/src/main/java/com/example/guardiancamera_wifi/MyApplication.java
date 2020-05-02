@@ -2,16 +2,22 @@ package com.example.guardiancamera_wifi;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 
 import com.kakao.auth.IApplicationConfig;
 import com.kakao.auth.KakaoAdapter;
 import com.kakao.auth.KakaoSDK;
 
-import java.net.MalformedURLException;
-
 public class MyApplication extends Application {
 
+    // Current user using this application
+    static LazyWebUserInfo currentUser;
+
+    // AuthHandler for fetching peer list
+    static LazywebAuthHandler authHandler;
+
+    public static void setCurrentUser(LazyWebUserInfo userinfo) {
+        currentUser = userinfo;
+    }
 
     @Override
     public void onCreate() {
@@ -30,7 +36,5 @@ public class MyApplication extends Application {
                 };
             }
         });
-
-
     }
 }

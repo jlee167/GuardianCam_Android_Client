@@ -12,9 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-
 
 
 /**
@@ -64,7 +62,6 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mView
 
 
     public void addItem(PeerData dataIn) {
-
         dataset.add(dataIn);
     }
 
@@ -127,18 +124,17 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mView
 }
 
 
-public class PeerListActivity extends AppCompatActivity {
+public class PeersActivity extends AppCompatActivity {
 
-    // RecyclerView variables
+    // Essential elements for the recyclerview
     RecyclerView peerList;
     RecyclerView.Adapter peerListAdapter;
     LinearLayoutManager layoutManager;
 
-    // AuthHandler for fetching peer list
-    LazywebAuthHandler authHandler;
 
     private void refreshPeerList() {
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,13 +152,6 @@ public class PeerListActivity extends AppCompatActivity {
 
         peerListAdapter = new RecyclerViewAdapter();
         peerList.setAdapter(peerListAdapter);
-
-        try {
-            authHandler = new LazywebAuthHandler (this, getIntent());
-        } catch (
-                MalformedURLException e) {
-            e.printStackTrace();
-        }
     }
 
 
