@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,32 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
-
-
-/**
- *  Class: PeerData
- *
- *  Contains information of peers.
- *  A user is allowed to acquire profile picture, name, and streaming server address of a friend.
- *  Peer's current emergency status is also included.
- *
- */
-
-class PeerData {
-    ImageView profilePicture;   // Peer's profile picture
-    String name;                // Peer's name
-    String serverAddress;       // Peer's streaming Address
-    String status;              // Peer's emergency status
-
-
-    public PeerData(ImageView profilePictureIn, String nameIn, String serverAddressIn, String statusIn) {
-        this.profilePicture = profilePictureIn;
-        this.status = statusIn;
-        this.serverAddress =serverAddressIn;
-        this.name = nameIn;
-    };
-}
+import java.util.Arrays;
 
 
 /**
@@ -47,21 +27,21 @@ class PeerData {
 class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mViewHolder> {
 
     // Dataset Array containing peer info objects
-    ArrayList<PeerData> dataset;
+    ArrayList<LazyWebUserInfo> dataset;
 
 
     public RecyclerViewAdapter() {
-        dataset = new ArrayList<PeerData>();
+        dataset = new ArrayList<LazyWebUserInfo>();
     }
 
 
-    public RecyclerViewAdapter(ArrayList<PeerData> inputDataset) {
-       dataset = new ArrayList<PeerData>();
+    public RecyclerViewAdapter(ArrayList<LazyWebUserInfo> inputDataset) {
+       dataset = new ArrayList<LazyWebUserInfo>();
        dataset.addAll(inputDataset);
     }
 
 
-    public void addItem(PeerData dataIn) {
+    public void addItem(LazyWebUserInfo dataIn) {
         dataset.add(dataIn);
     }
 
@@ -78,17 +58,18 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mView
      */
     static class mViewHolder extends  RecyclerView.ViewHolder {
 
-        ImageView profilePicture;   // Peer's profile picture
-        TextView name;              // Peer's name
-        TextView serverAddress;     // Peer's streaming Address
-        TextView status;            // Peer's emergency status
+        // Child indexes of views within corresponding layouts.
+        static int INDEX_PROFILE_PICTURE = 0;
+        static int INDEX_PERSONAL_INFO = 1;
+        static int INDEX_STATUS = 2;
+        static int INDEX_NAME = 0;
+        static int INDEX_SERVER_ADDRESS = 1;
+
+        View userInfoView;
 
         mViewHolder(@NonNull View itemView) {
             super(itemView);
-            profilePicture = itemView.findViewById(R.id.profilePicture);
-            name = itemView.findViewById(R.id.name);
-            status = itemView.findViewById(R.id.status);
-            serverAddress = itemView.findViewById(R.id.serverAddress);
+            userInfoView = itemView;
         }
     }
 
@@ -108,6 +89,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mView
         return new mViewHolder(listItem);
     }
 
+
     /**
      * Change recyclerview's item specified by position parameter
      *
@@ -116,21 +98,37 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mView
      */
     @Override
     public void onBindViewHolder(@NonNull mViewHolder holder, int position) {
-        holder.profilePicture = dataset.get(position).profilePicture;
-        holder.name.setText(dataset.get(position).name);
-        holder.serverAddress.setText(dataset.get(position).serverAddress);
-        holder.status.setText(dataset.get(position).status);
+        LinearLayout personalInfoArea = (LinearLayout) ((ViewGroup)holder.userInfoView).getChildAt(mViewHolder.INDEX_PERSONAL_INFO);
+
+        ImageView profilePicture = (ImageView) ((ViewGroup)holder.userInfoView).getChildAt(mViewHolder.INDEX_PROFILE_PICTURE);
+        TextView name = (TextView) personalInfoArea.getChildAt(mViewHolder.INDEX_NAME);
+        TextView serverAddress = (TextView) personalInfoArea.getChildAt(mViewHolder.INDEX_SERVER_ADDRESS);
+        TextView status = (TextView) ((ViewGroup)holder.userInfoView).getChildAt(mViewHolder.INDEX_STATUS);
+
+        profilePicture.setImageBitmap(dataset.get(position).profilePictureBitmap);
+        //profilePicture.setImageURI(Uri.parse(dataset.get(position).profilePicture));
+        name.setText(dataset.get(position).name);
+        serverAddress.setText(dataset.get(position).streamAddress);
+        status.setText(dataset.get(position).userStatus);
     }
 }
+
+
+
+
 
 
 public class PeersActivity extends AppCompatActivity {
 
     // Essential elements for the recyclerview
-    RecyclerView peerList;
+    RecyclerView peerListView;
     RecyclerView.Adapter peerListAdapter;
     LinearLayoutManager layoutManager;
 
+    ArrayList<LazyWebUserInfo> peers_array;
+    LazyWebPeerGroups peers;
+
+    final int initialArraySize = 10;
 
     private void refreshPeerList() {
     }
@@ -144,14 +142,13 @@ public class PeersActivity extends AppCompatActivity {
         /**
          *  Setting Recycler View containing the list of information on the user's peers.
          */
-        peerList = findViewById(R.id.peerList);
-        peerList.setHasFixedSize(true);
+        peerListView = findViewById(R.id.peerList);
+        peerListView.setHasFixedSize(true);
 
         layoutManager = new LinearLayoutManager(this);
-        peerList.setLayoutManager(layoutManager);
+        peerListView.setLayoutManager(layoutManager);
 
-        peerListAdapter = new RecyclerViewAdapter();
-        peerList.setAdapter(peerListAdapter);
+        UserInterfaceHandler.initButtonsUI(this);
     }
 
 
@@ -159,6 +156,46 @@ public class PeersActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        try {
+            Thread peer_thread = new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        peers = MyApplication.authHandler.getPeers();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            peer_thread.start();
+            peer_thread.join();
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            finish();
+        }
+
+        peers_array = new ArrayList<LazyWebUserInfo>(this.initialArraySize);
+        LazyWebUserInfo [] protectees = peers.getProtectees();
+        LazyWebUserInfo [] guardians = peers.getGuardians();
+        LazyWebUserInfo [] requests_protectees = peers.getProtecteeRequests();
+        LazyWebUserInfo [] requests_guardians = peers.getGuardianRequests();
+
+        peers_array.addAll(Arrays.asList(requests_protectees));
+        peers_array.addAll(Arrays.asList(requests_guardians));
+        peers_array.addAll(Arrays.asList(protectees));
+        peers_array.addAll(Arrays.asList(guardians));
+
+        peerListAdapter = new RecyclerViewAdapter(peers_array);
+        peerListView.setAdapter(peerListAdapter);
+
+        /*
+        for (int i = 0; i < guardians.length; i++) {
+
+        }
+        */
     }
 
 

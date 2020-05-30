@@ -178,8 +178,6 @@ public class CamStreamer extends Service {
         */
 
         data = new byte[60240];
-
-
         mjpegAddr = new InetSocketAddress(IP_CAM,PORT_STREAM_IN);
         serverAddr = new InetSocketAddress(IP_SERVER,PORT_STREAM_OUT);
 

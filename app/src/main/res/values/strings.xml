@@ -14,7 +14,19 @@
     <string name="LOGIN_GOOGLE"> GOOGLE </string>
     <string name="LOGIN_KAKAO"> KAKAO </string>
 
-    <string name="AUTH_SERVER_ADDRESS">www.lazyweb.com/user_register.php</string>
+    <string name="AUTH_SERVER_ADDRESS">http://www.lazyweb.com/user_register.php</string>
+    <string name="AUTH_SERVER_ADDRESS_IP">http://192.168.43.74/user_register.php</string>
     <string name="STREAMING_SERVER_ADDRESS">127.0.0.1</string>
+
+
+    <string name="MENU_START_CAPTURE"> Capture </string>
+    <string name="MENU_STOP_CAPTURE"> Stop </string>
+    <string name="MENU_WATCH_STREAM"> Watch </string>
+    <string name="MENU_LIST_PEERS"> Friends</string>
+    <string name="MENU_SETTINGS"> Settings </string>
+
+    <string name="VIDEO_SIZE_QCIF"> 320X240 </string>
+    <string name="VIDEO_SIZE_VGA"> 640X480 </string>
+    <string name="VIDEO_SIZE_SVGA"> 800X600 </string>
 
 </resources>
