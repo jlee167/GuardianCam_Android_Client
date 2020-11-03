@@ -1,60 +1,119 @@
 package com.example.guardiancamera_wifi;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioGroup;
+
 import androidx.appcompat.app.AppCompatActivity;
-
-
-
-
-class GuardianCamConfigs {
-
-    // Frame Size macros
-    final static int [] FRAME_SIZE_QCIF = {320, 240};
-    final static int [] FRAME_SIZE_VGA = {640, 480};
-    final static int [] FRMAE_SIZE_SVGA = {800, 600};
-
-    // Output Method Macros
-    final static int OUTPUT_EXTERNAL_CAM = 0;
-    final static int OUTPUT_PHONE_CAM = 1;
-
-    // Output Formats
-    final static int FMT_MJPEG = 0;
-    final static int FMT_RGB565 = 1;
-
-    public int outputMethod;
-    public int [] frameSize;
-    public int format;
-
-
-    /**
-     *      Constructor with default settings
-     *
-     *      Todo: Restrict Framesize when RGB565 format is selected
-     */
-    GuardianCamConfigs() {
-        outputMethod = OUTPUT_EXTERNAL_CAM;
-        frameSize = FRAME_SIZE_QCIF;
-        format = FMT_MJPEG;
-    }
-}
 
 
 
 
 public class SettingActivity extends AppCompatActivity {
 
+    GuardianCamConfigs app_configs;
+    RadioGroup resolutions, formats, modes;
+    Button saveConfigBtn;
+
+    private void updateWidgets() {
+        if (app_configs.frameSize == GuardianCamConfigs.FRAME_SIZE_QCIF) {
+            resolutions.check(R.id.qcif);
+        } else if (app_configs.frameSize == GuardianCamConfigs.FRAME_SIZE_VGA) {
+            resolutions.check(R.id.vga);
+        } else if (app_configs.frameSize == GuardianCamConfigs.FRMAE_SIZE_SVGA) {
+            resolutions.check(R.id.svga);
+        }
+
+        switch (app_configs.outputMethod) {
+            case GuardianCamConfigs.OUTPUT_EXTERNAL_CAM:
+                modes.check(R.id.externalCamera);
+                break;
+            case GuardianCamConfigs.OUTPUT_PHONE_CAM:
+                modes.check(R.id.phone);
+                break;
+        }
+
+        switch (app_configs.format) {
+            case GuardianCamConfigs.FMT_MJPEG:
+                formats.check(R.id.mjpeg);
+                break;
+            case GuardianCamConfigs.FMT_RGB565:
+                formats.check(R.id.rgb565);
+                break;
+        }
+    }
+
+    private void configChangeHandler() {
+        switch (resolutions.getCheckedRadioButtonId()) {
+            case R.id.qcif:
+                app_configs.setFrameSize(GuardianCamConfigs.FRAME_SIZE_QCIF);
+                MyApplication.applicationLog("Capture Resolution: 320x240\n");
+                break;
+            case R.id.vga:
+                app_configs.setFrameSize(GuardianCamConfigs.FRAME_SIZE_VGA);
+                MyApplication.applicationLog("Capture Resolution: 640x480\n");
+                break;
+            case R.id.svga:
+                app_configs.setFrameSize(GuardianCamConfigs.FRMAE_SIZE_SVGA);
+                MyApplication.applicationLog("Capture Resolution: 800x600\n");
+                break;
+        }
+
+        switch (formats.getCheckedRadioButtonId()) {
+            case R.id.mjpeg:
+                app_configs.setFormat(GuardianCamConfigs.FMT_MJPEG);
+                MyApplication.applicationLog("Capture Format: MJPEG\n");
+                break;
+            case R.id.rgb565:
+                app_configs.setFormat(GuardianCamConfigs.FMT_RGB565);
+                MyApplication.applicationLog("Capture Format: RGB565\n");
+                break;
+        }
+
+        switch (modes.getCheckedRadioButtonId()) {
+            case R.id.externalCamera:
+                app_configs.setMode(GuardianCamConfigs.OUTPUT_EXTERNAL_CAM);
+                MyApplication.applicationLog("Capture Mode: Camera Module\n");
+                break;
+            case R.id.phone:
+                app_configs.setMode(GuardianCamConfigs.OUTPUT_PHONE_CAM);
+                MyApplication.applicationLog("Capture Mode: Phone Camera\n");
+                break;
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
+        app_configs = MyApplication.configs;
+
+        resolutions = findViewById(R.id.resolutions);
+        formats = findViewById(R.id.formats);
+        modes = findViewById(R.id.modes);
+        saveConfigBtn = findViewById(R.id.saveButton);
+
+        saveConfigBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                configChangeHandler();
+            }
+        });
+
         UserInterfaceHandler.initButtonsUI(this);
     }
+
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        updateWidgets();
     }
+
 
     @Override
     protected void onDestroy() {

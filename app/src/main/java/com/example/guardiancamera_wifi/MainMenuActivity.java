@@ -1,17 +1,31 @@
 package com.example.guardiancamera_wifi;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
+import android.view.Menu;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
 
 // Todo: Move to another file
 class UserInterfaceHandler {
+
+
 
     /**
      * Create activity intents and initialize control buttons' UI.
@@ -23,6 +37,16 @@ class UserInterfaceHandler {
         TextView viewVideoBtn;
         TextView peerListBtn;
         TextView settingBtn;
+        TextView homeBtn;
+        Toolbar toolbar;
+
+        toolbar = activity.findViewById(R.id.mainToolbar);
+
+        toolbar.setTitle("Lazyboy's Blackbox");
+        toolbar.setTitleTextColor(Color.WHITE);
+        toolbar.inflateMenu(R.menu.menu);
+        //activity.setSupportActionBar(toolbar);
+
 
         final Intent captureIntent = new Intent(activity, CamStreamer.class);
         captureIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
@@ -38,6 +62,16 @@ class UserInterfaceHandler {
                     activity.stopService(captureIntent);
                     captureServiceBtn.setText(R.string.MENU_START_CAPTURE);
                 }
+            }
+        });
+
+        final Intent MainMenuIntent = new Intent(activity, MainMenuActivity.class);
+        MainMenuIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
+        homeBtn = (TextView) activity.findViewById(R.id.homeBtn);
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                activity.startActivity(MainMenuIntent);
             }
         });
 
@@ -74,6 +108,8 @@ class UserInterfaceHandler {
 }
 
 
+
+
 public class MainMenuActivity extends AppCompatActivity {
 
     // Views for control buttons
@@ -88,6 +124,7 @@ public class MainMenuActivity extends AppCompatActivity {
     boolean statServerConnection;
 
 
+
     /**
      *  Create activity intents and initialize control buttons' UI.
      *  Connect respective buttons to corresponding services and activities.
@@ -96,12 +133,7 @@ public class MainMenuActivity extends AppCompatActivity {
         final Intent captureIntent = new Intent(this, CamStreamer.class);
         captureIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
         captureServiceBtn = findViewById(R.id.captureStartBtn);
-        /*
-        if (!CamStreamer.isRunning()) {
-            startService(captureIntent);
-            captureServiceBtn.setText(R.string.MENU_STOP_CAPTURE);
-        }
-        */
+
         captureServiceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,6 +152,7 @@ public class MainMenuActivity extends AppCompatActivity {
         final Intent videoViewIntent = new Intent(this, VideoViewActivity.class);
         videoViewIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
         viewVideoBtn = (TextView) findViewById(R.id.videoViewBtn);
+        viewVideoBtn.setText("New Char");
         viewVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,9 +179,13 @@ public class MainMenuActivity extends AppCompatActivity {
                 startActivity(settingIntent);
             }
         });
-
     }
-
+/*
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu
+    }
+*/
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -159,32 +196,76 @@ public class MainMenuActivity extends AppCompatActivity {
         statCamConnection = false;
         statServerConnection = false;
 
+        // Applicationwide authentication handler object
+        final LazywebAuthHandler authHandler = MyApplication.authHandler;
+
         // Initialize Control Buttons
         UserInterfaceHandler.initButtonsUI(this);
-        /* Todo: Uncomment
-        try {
-            MyApplication.authHandler.httpHeartbeat();
-        } catch (JSONException | IOException e) {
-            e.printStackTrace();
-        }
-        */
 
-        /*
-        try {
-            String serverMessage = MyApplication.authHandler.getUserInfo();
-            TextView serverLog = findViewById(R.id.serverLogView);
-            if (serverMessage == null)
-                serverLog.setText("No response from server. Could not retrieve user information");
-            else {
-                MyApplication.currentUser.setWithJSON(new JSONObject(serverMessage));
-                serverLog.setText(serverMessage);
+        TextView logWindow = findViewById(R.id.logWindow);
+        logWindow.setMovementMethod(new ScrollingMovementMethod());
+
+        // Observe application logs, and print it out when there is any change
+        final Observer<ConcurrentLinkedDeque<String>> observer = new Observer<ConcurrentLinkedDeque<String>>() {
+            @Override
+            public void onChanged(ConcurrentLinkedDeque<String> strings) {
+                TextView log = findViewById(R.id.logWindow);
+                log.setText("");
+                for (int i = 0; i < strings.size(); i++)
+                    log.append((String)strings.toArray()[i]);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        };
+        MyApplication.applicationLogLiveData.observe(this,observer);
+        MyApplication.applicationLog("Hello World!\n");
+
+        Thread httpHeartbeatThread= new Thread() {
+            boolean result;
+
+            @Override
+            public void run() {
+                try {
+                    result = authHandler.httpHeartbeat();
+                } catch (JSONException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            public boolean getResult(){
+                return result;
+            }
+        };
+
+        httpHeartbeatThread.start();
+        try {
+            httpHeartbeatThread.join();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        */
+
+        //Todo: Move to Login Activity
+        Thread getinfo = new Thread(){
+            @Override
+            public void run() {
+                try {
+                    MyApplication.currentUser = MyApplication.authHandler.getMyInfo();
+                    ImageView profilePicture = findViewById(R.id.profilePicture);
+                    profilePicture.setImageBitmap(MyApplication.currentUser.profilePictureBitmap);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        getinfo.start();
+
+        try {
+            getinfo.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 
 

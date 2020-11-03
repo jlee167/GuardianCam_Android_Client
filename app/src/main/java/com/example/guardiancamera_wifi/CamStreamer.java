@@ -285,6 +285,8 @@ public class CamStreamer extends Service {
         msg.arg1 = startId;
         streamHandler.sendMessage(msg);
 
+        MyApplication.postApplicationLog("Capture Service Started...");
+
         runState = true;
         return START_STICKY;
     }

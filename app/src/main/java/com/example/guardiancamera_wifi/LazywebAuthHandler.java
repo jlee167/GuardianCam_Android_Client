@@ -194,6 +194,8 @@ public class LazywebAuthHandler {
     }
 
 
+
+
     /**
      * Send Http connection test request to auth server.
      * This request returns simple response data confirming client-server connectivity.
@@ -265,23 +267,6 @@ public class LazywebAuthHandler {
     }
 
 
-    Thread httpHeartbeatThread= new Thread() {
-        boolean result;
-
-        @Override
-        public void run() {
-            try {
-                result = httpHeartbeat();
-            } catch (JSONException | IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        public boolean getResult(){
-            return result;
-        }
-    };
-
 
 
     /**
@@ -291,57 +276,104 @@ public class LazywebAuthHandler {
      * @throws IOException
      *
      */
-    public String getUserInfo() throws IOException, JSONException {
-        byte [] serverMessageBytes;
-        String serverMessage;
+    public LazyWebUserInfo getMyInfo() throws IOException, JSONException {
+        LazyWebUserInfo currentUser = new LazyWebUserInfo();
 
-        if (!isSignedWithKakao() && !isSignedWithGoogle())
-            return null;
+        // Initialize server http url object
+        try {
+            authServerUrl = new URL(appContext.getString(R.string.AUTH_SERVER_ADDRESS_IP));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
 
-        // Check for any pending operation
-        // Todo: Make custom exception for pending operations
-        if (streamFromAuthServer.available() > 0)
-            throw new IOException();
-        else
-            streamToAuthServer.flush();
+        // Make Http connection to the authentication server.
+        // Data will be sent in JSON format, and POST will be used
+        try {
+            authServerConnection = (HttpURLConnection) authServerUrl.openConnection();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        authServerConnection.setRequestProperty("Content-Type", "application/json; utf-8");
+        authServerConnection.setRequestProperty("Accept", "application/json");
+        try {
+            authServerConnection.setRequestMethod("POST");
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        }
+        authServerConnection.setDoOutput(true);
+        authServerConnection.setDoInput(true);
+        authServerConnection.connect();
+
+        // Get Http output stream
+        try {
+            streamToAuthServer = authServerConnection.getOutputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
         /*
          *       Send Access Token information to Auth Server to retrieve
          *       relevant data about current user
          */
+
+        //Todo: Make some custom macros. TRy not to hardcode
         JSONObject tokens_json = new JSONObject();
         if (isSignedWithGoogle()){
-            tokens_json.put("AccessToken", getGoogleAccessToken());
+            tokens_json.put("Access Token", getGoogleAccessToken());
             tokens_json.put("Authenticator", "Google");
         }
         else if (isSignedWithKakao()) {
-            tokens_json.put("AccessToken", getKakaoAccessToken());
+            tokens_json.put("Access Token", getKakaoAccessToken());
             tokens_json.put("Authenticator", "Kakao");
         }
         else {
             /* Todo: Make custom Exception for authentication error */
         }
+        tokens_json.put("Request", "My Info");
+
         //streamToAuthServer.write(tokens_json.toString().getBytes(StandardCharsets.UTF_8));
         Log.i("AUTH_SERVER_INIT", "HTTP Access Requested" + tokens_json.toString());
 
+
+        // Send above request to the server
+        byte [] httpOutput = tokens_json.toString().getBytes();
+        streamToAuthServer.write(httpOutput);
+        streamToAuthServer.flush();
+        streamToAuthServer.close();
+        int responseCode= authServerConnection.getResponseCode();
+        streamFromAuthServer = authServerConnection.getInputStream();
+
+        byte[] serverMessageBytes;
+        String serverMessage;
+        serverMessageBytes = new byte[1000];
+        streamFromAuthServer.read(serverMessageBytes);
+        String string_recv = new String(serverMessageBytes);
+        JSONObject msg_recv = new JSONObject(string_recv);
+
+        currentUser = new LazyWebUserInfo();
+        currentUser.setWithJSON(msg_recv);
+        MyApplication.postApplicationLog("User information Retrieved!\n");
+        return currentUser;
 
         /*
          *      Wait for HTTP response from server.
          *      The response should contain JSON packet containing user information.
          */
         /* Todo: Insert waiting (wiith timeout) routine for HTTP response */
+        /*
         if (streamFromAuthServer.available() > 0) {
             serverMessageBytes = new byte[streamFromAuthServer.available()];
             streamFromAuthServer.read(serverMessageBytes);
             serverMessage = Arrays.toString(serverMessageBytes);
 
-            //LazyWebUserInfo user = new LazyWebUserInfo();
-            //user.setWithJSON(new JSONObject(serverMessage));
-            return serverMessage;
+            currentUser = new LazyWebUserInfo();
+            currentUser.setWithJSON(new JSONObject(serverMessage));
+            return currentUser;
         }
 
         return null;
+        */
     }
 
 
@@ -461,7 +493,6 @@ public class LazywebAuthHandler {
             request_guardians[i] = new LazyWebUserInfo();
             request_guardians[i].setAsPeer(peer);
         }
-
 
 
         // Pack userinfo objects into a single usergroup object and return it to caller

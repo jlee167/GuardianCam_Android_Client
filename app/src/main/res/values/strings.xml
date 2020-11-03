@@ -5,10 +5,12 @@
     <string name="TITLE_APP"> Lazyboy\'s\nGuardianCam </string>
     <string name="STAT_CAM_CONNECTED"> Camera Connected </string>
     <string name="STAT_CAM_DISCONNECTED"> Camera Disconnected </string>
-    <string name="STAT_SERVER_CONNECTED"> Server Connected </string>
-    <string name="STAT_SERVER_DISCONNECTED"> Server Disconnected </string>
+    <string name="STAT_SERVER_CONNECTED"> Server\nConnected </string>
+    <string name="STAT_SERVER_DISCONNECTED"> Server\nDisconnected </string>
     <string name="STAT_CAM_RECORDING"> Idle </string>
     <string name="STAT_CAM_IDLE"> Recording </string>
+    <string name="STAT_EXT_CAM"> Wifi\nCamera</string>
+    <string name="STAT_PHONE"> Phone\nCamera</string>
 
     <string name="INDEX_LOGIN_METHOD"> Login Method </string>
     <string name="LOGIN_GOOGLE"> GOOGLE </string>
@@ -21,12 +23,26 @@
 
     <string name="MENU_START_CAPTURE"> Capture </string>
     <string name="MENU_STOP_CAPTURE"> Stop </string>
+    <string name="MENU_HOME"> Home </string>
     <string name="MENU_WATCH_STREAM"> Watch </string>
     <string name="MENU_LIST_PEERS"> Friends</string>
     <string name="MENU_SETTINGS"> Settings </string>
 
+    <string name="VIDEO_SIZE_LABEL"> Resolution </string>
     <string name="VIDEO_SIZE_QCIF"> 320X240 </string>
     <string name="VIDEO_SIZE_VGA"> 640X480 </string>
     <string name="VIDEO_SIZE_SVGA"> 800X600 </string>
+
+    <string name="FORMAT_LABEL"> Formats </string>
+    <string name="FORMAT_RGB565"> RGB565 </string>
+    <string name="FORMAT_MJPEG"> MJPEG </string>
+
+    <string name="SAVE_SETTING_LABEL"> SAVE </string>
+
+    <string name="MODE_LABEL"> Capture \n Mode </string>
+    <string name="MODE_EXTERNAL"> External Camera </string>
+    <string name="MODE_PHONE"> Phone </string>
+
+    <string name="LOGS_LABEL"> Logs </string>
 
 </resources>

@@ -130,7 +130,7 @@ public class PeersActivity extends AppCompatActivity {
 
     final int initialArraySize = 10;
 
-    private void refreshPeerList() {
+    public void refreshPeerList() {
     }
 
 

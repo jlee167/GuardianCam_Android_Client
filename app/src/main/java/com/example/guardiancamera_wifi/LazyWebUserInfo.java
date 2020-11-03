@@ -32,7 +32,6 @@ public class LazyWebUserInfo {
 
 
     public LazyWebUserInfo() {
-
     }
 
 
@@ -45,7 +44,13 @@ public class LazyWebUserInfo {
             this.authProvider = (String) jsonUserInfo.get("authenticator");
             this.streamAddress = (String) jsonUserInfo.get("id_stream");
             this.userStatus = (String) jsonUserInfo.get("status");
-            this.cameraID = (String) jsonUserInfo.get("id_camera");
+            //this.cameraID = (String) jsonUserInfo.get("id_camera");
+
+            try {
+                this.profilePictureBitmap = getPictureBitmap(this.profilePicture);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
     }
 
 
@@ -59,13 +64,19 @@ public class LazyWebUserInfo {
             this.authProvider = (String) jsonUserInfo.get("authenticator");
             this.streamAddress = (String) jsonUserInfo.get("id_stream");
             this.userStatus = (String) jsonUserInfo.get("status");
-            this.cameraID = (String) jsonUserInfo.get("id_camera");
+            //this.cameraID = (String) jsonUserInfo.get("id_camera");
 
-            return true;
         }
         catch (JSONException e) {
             return false;
         }
+
+        try {
+            this.profilePictureBitmap = getPictureBitmap(this.profilePicture);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
     }
 
     public boolean setAsPeer(JSONObject jsonUserInfo) {

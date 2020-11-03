@@ -7,7 +7,7 @@
     tools:context=".VideoViewActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/mainToolbar2"
+        android:id="@+id/mainToolbar"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/colorPrimary"
@@ -19,66 +19,76 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="UnknownIdInLayout" />
 
-
     <LinearLayout
-        android:id="@+id/linearLayout3"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:orientation="vertical"
+        android:id="@+id/linearLayout6"
+        android:layout_width="0dp"
+        android:layout_height="93dp"
+        android:orientation="horizontal"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/captureStartBtn"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:visibility="visible">
+            android:layout_weight="1"
+            android:background="#4E4949"
+            android:gravity="center"
+            android:text="@string/MENU_START_CAPTURE"
+            android:textColor="#FFFFFF" />
 
-            <TextView
-                android:id="@+id/captureStartBtn"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/MENU_START_CAPTURE" />
+        <TextView
+            android:id="@+id/homeBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#4E4949"
+            android:gravity="center"
+            android:text="@string/MENU_HOME"
+            android:textColor="#FFFFFF" />
 
-            <TextView
-                android:id="@+id/videoViewBtn"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:gravity="center"
-                android:text="@string/MENU_WATCH_STREAM" />
+        <TextView
+            android:id="@+id/videoViewBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#4E4949"
+            android:clickable="false"
+            android:gravity="center"
+            android:text="@string/MENU_WATCH_STREAM"
+            android:textColor="#FFFFFF" />
 
-            <TextView
-                android:id="@+id/peerListBtn"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/MENU_LIST_PEERS" />
+        <TextView
+            android:id="@+id/peerListBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#4E4949"
+            android:gravity="center"
+            android:text="@string/MENU_LIST_PEERS"
+            android:textColor="#FFFFFF" />
 
-            <TextView
-                android:id="@+id/settingBtn"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/MENU_SETTINGS" />
-        </LinearLayout>
-
+        <TextView
+            android:id="@+id/settingBtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#4E4949"
+            android:gravity="center"
+            android:text="@string/MENU_SETTINGS"
+            android:textColor="#FFFFFF" />
     </LinearLayout>
+
 
     <com.google.android.gms.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="200dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout6"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Spinner
@@ -87,7 +97,7 @@
         android:layout_height="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/mainToolbar2" />
+        app:layout_constraintTop_toBottomOf="@+id/mainToolbar" />
 
     <WebView
         android:id="@+id/broadcastVideo"
