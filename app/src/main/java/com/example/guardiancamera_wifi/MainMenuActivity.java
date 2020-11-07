@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -12,7 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.MutableLiveData;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 
 import org.json.JSONException;
@@ -22,10 +22,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 
-// Todo: Move to another file
+
+
 class UserInterfaceHandler {
-
-
 
     /**
      * Create activity intents and initialize control buttons' UI.
@@ -42,7 +41,7 @@ class UserInterfaceHandler {
 
         toolbar = activity.findViewById(R.id.mainToolbar);
 
-        toolbar.setTitle("Lazyboy's Blackbox");
+        toolbar.setTitle("Lazyboy's GuardianCam");
         toolbar.setTitleTextColor(Color.WHITE);
         toolbar.inflateMenu(R.menu.menu);
         //activity.setSupportActionBar(toolbar);
@@ -109,7 +108,6 @@ class UserInterfaceHandler {
 
 
 
-
 public class MainMenuActivity extends AppCompatActivity {
 
     // Views for control buttons
@@ -122,6 +120,15 @@ public class MainMenuActivity extends AppCompatActivity {
     boolean statCamRecording;
     boolean statCamConnection;
     boolean statServerConnection;
+
+
+
+    private void changeFragment(int containerId, Fragment newFragment) {
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(containerId, newFragment);
+        transaction.commit();
+    }
+
 
 
 
@@ -170,22 +177,21 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         });
 
-        final Intent settingIntent = new Intent(this, SettingActivity.class);
-        settingIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
+        //final Intent settingIntent = new Intent(this, SettingActivity.class);
+        //settingIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
         settingBtn = (TextView) findViewById(R.id.settingBtn);
         settingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(settingIntent);
+                changeFragment(R.id.contentsFrame, new SettingsFragment());
+                //startActivity(settingIntent);
             }
         });
     }
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu
-    }
-*/
+
+
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -197,10 +203,10 @@ public class MainMenuActivity extends AppCompatActivity {
         statServerConnection = false;
 
         // Applicationwide authentication handler object
-        final LazywebAuthHandler authHandler = MyApplication.authHandler;
+        final LazyWebAuthHandler authHandler = MyApplication.authHandler;
 
         // Initialize Control Buttons
-        UserInterfaceHandler.initButtonsUI(this);
+        initButtonsUI();
 
         TextView logWindow = findViewById(R.id.logWindow);
         logWindow.setMovementMethod(new ScrollingMovementMethod());
@@ -215,6 +221,8 @@ public class MainMenuActivity extends AppCompatActivity {
                     log.append((String)strings.toArray()[i]);
             }
         };
+
+/*
         MyApplication.applicationLogLiveData.observe(this,observer);
         MyApplication.applicationLog("Hello World!\n");
 
@@ -222,9 +230,9 @@ public class MainMenuActivity extends AppCompatActivity {
             boolean result;
 
             @Override
-            public void run() {
+            public void run(){
                 try {
-                    result = authHandler.httpHeartbeat();
+                    result = authHandler.isServerDown();
                 } catch (JSONException | IOException e) {
                     e.printStackTrace();
                 }
@@ -250,9 +258,7 @@ public class MainMenuActivity extends AppCompatActivity {
                     MyApplication.currentUser = MyApplication.authHandler.getMyInfo();
                     ImageView profilePicture = findViewById(R.id.profilePicture);
                     profilePicture.setImageBitmap(MyApplication.currentUser.profilePictureBitmap);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -266,6 +272,7 @@ public class MainMenuActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
+ */
     }
 
 

@@ -45,4 +45,14 @@
 
     <string name="LOGS_LABEL"> Logs </string>
 
+
+    <string-array name="VIDEO_RESOLUTIONS">
+        <item>QCIF(320 X 240)</item>
+        <item>VGA(640 X 480)</item>
+        <item>SVGA(800 X 600)</item>
+        <item>HD(1280 X 720)</item>
+        <item>FULL HD(1920 X 1080)</item>
+    </string-array>
+
+
 </resources>

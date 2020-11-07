@@ -1,40 +1,40 @@
 package com.example.guardiancamera_wifi;
 
 public class LazyWebPeerGroups {
-    private LazyWebUserInfo [] protectees = {};
-    private LazyWebUserInfo [] guardians = {};
-    private LazyWebUserInfo [] requests_protectee = {};
-    private LazyWebUserInfo [] requests_guardians = {};
+    private LazyWebUser[] protectees = {};
+    private LazyWebUser[] guardians = {};
+    private LazyWebUser[] requests_protectee = {};
+    private LazyWebUser[] requests_guardians = {};
 
-    public void setProtectees (LazyWebUserInfo [] protectees_new) {
+    public void setProtectees (LazyWebUser[] protectees_new) {
         protectees = protectees_new;
     }
 
-    public void setGuardians (LazyWebUserInfo [] guardians_new) {
+    public void setGuardians (LazyWebUser[] guardians_new) {
         guardians = guardians_new;
     }
 
-    public void setProtecteeRequests (LazyWebUserInfo [] protecteeRequests) {
+    public void setProtecteeRequests (LazyWebUser[] protecteeRequests) {
         requests_protectee = protecteeRequests;
     }
 
-    public void setGuardianRequests (LazyWebUserInfo [] guardianRequests) {
+    public void setGuardianRequests (LazyWebUser[] guardianRequests) {
         requests_guardians = guardianRequests;
     }
 
-    public LazyWebUserInfo [] getProtectees() {
+    public LazyWebUser[] getProtectees() {
         return protectees;
     }
 
-    public LazyWebUserInfo [] getGuardians() {
+    public LazyWebUser[] getGuardians() {
         return guardians;
     }
 
-    public LazyWebUserInfo [] getProtecteeRequests() {
+    public LazyWebUser[] getProtecteeRequests() {
         return requests_protectee;
     }
 
-    public LazyWebUserInfo [] getGuardianRequests() {
+    public LazyWebUser[] getGuardianRequests() {
         return requests_guardians;
     }
 }

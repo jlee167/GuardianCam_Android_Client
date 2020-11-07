@@ -17,7 +17,7 @@ import java.net.URL;
 /**
  *      Container class for user information.
  */
-public class LazyWebUserInfo {
+public class LazyWebUser {
 
     public String profilePicture;
     public Bitmap profilePictureBitmap;
@@ -31,11 +31,11 @@ public class LazyWebUserInfo {
     public String cameraID;
 
 
-    public LazyWebUserInfo() {
+    public LazyWebUser() {
     }
 
 
-    public LazyWebUserInfo(JSONObject jsonUserInfo) throws JSONException {
+    public LazyWebUser(JSONObject jsonUserInfo) throws JSONException {
             this.profilePicture = (String) jsonUserInfo.get("id_profile_picture");
             this.uid = (String) jsonUserInfo.get("uid");
             this.name = (String) jsonUserInfo.get("name");

@@ -25,10 +25,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.util.Arrays;
 
 
-public class LazywebAuthHandler {
+public class LazyWebAuthHandler {
 
     public final static int AUTHENTICATOR_KAKAO = 0;
     public final static int AUTHENTICATOR_GOOGLE = 1;
@@ -61,7 +60,7 @@ public class LazywebAuthHandler {
      *
      * @throws MalformedURLException
      */
-    LazywebAuthHandler (final Context applicationContext, final int auth) throws IOException {
+    LazyWebAuthHandler(final Context applicationContext, final int auth) throws IOException {
         appContext = applicationContext;
         authenticator = auth;
     }
@@ -208,7 +207,7 @@ public class LazywebAuthHandler {
      *      Add more error codes
      */
 
-    public boolean httpHeartbeat() throws JSONException, IOException {
+    public boolean isServerDown() throws JSONException, IOException {
 
         try {
             authServerUrl = new URL(appContext.getString(R.string.AUTH_SERVER_ADDRESS_IP));
@@ -261,9 +260,9 @@ public class LazywebAuthHandler {
             String string_recv = new String(serverMessageBytes);
             JSONObject recv= new JSONObject(string_recv);
             if (recv.get("response").equals("OK"))
-                return true;
-            else
                 return false;
+            else
+                return true;
     }
 
 
@@ -276,8 +275,8 @@ public class LazywebAuthHandler {
      * @throws IOException
      *
      */
-    public LazyWebUserInfo getMyInfo() throws IOException, JSONException {
-        LazyWebUserInfo currentUser = new LazyWebUserInfo();
+    public LazyWebUser getMyInfo() throws IOException, JSONException {
+        LazyWebUser currentUser = new LazyWebUser();
 
         // Initialize server http url object
         try {
@@ -351,7 +350,7 @@ public class LazywebAuthHandler {
         String string_recv = new String(serverMessageBytes);
         JSONObject msg_recv = new JSONObject(string_recv);
 
-        currentUser = new LazyWebUserInfo();
+        currentUser = new LazyWebUser();
         currentUser.setWithJSON(msg_recv);
         MyApplication.postApplicationLog("User information Retrieved!\n");
         return currentUser;
@@ -391,7 +390,7 @@ public class LazywebAuthHandler {
         // User information objects to fill.
         // User info arrays will be used to fill the peer groups object, which will be returned
         LazyWebPeerGroups peerGroups;
-        LazyWebUserInfo [] protectees, guardians, request_protectees, request_guardians;
+        LazyWebUser[] protectees, guardians, request_protectees, request_guardians;
 
         // Initialize peer group object
         peerGroups = new LazyWebPeerGroups();
@@ -467,30 +466,30 @@ public class LazywebAuthHandler {
         JSONArray json_request_guardians = msg_recv.getJSONArray("request_guardian");
 
         // Storage for returned JSON arrays
-        protectees = new LazyWebUserInfo[json_protectees.length()];
-        guardians = new LazyWebUserInfo[json_guardians.length()];
-        request_protectees = new LazyWebUserInfo[json_request_protectees.length()];
-        request_guardians = new LazyWebUserInfo[json_request_guardians.length()];
+        protectees = new LazyWebUser[json_protectees.length()];
+        guardians = new LazyWebUser[json_guardians.length()];
+        request_protectees = new LazyWebUser[json_request_protectees.length()];
+        request_guardians = new LazyWebUser[json_request_guardians.length()];
 
         // Copy information in JSON return packet to userinfo objects
         for (int i = 0; i < json_protectees.length(); i++) {
             JSONObject peer = json_protectees.getJSONObject(i);
-            protectees[i] = new LazyWebUserInfo();
+            protectees[i] = new LazyWebUser();
             protectees[i].setAsPeer(peer);
         }
         for (int i = 0; i < json_request_protectees.length(); i++) {
             JSONObject peer = json_request_protectees.getJSONObject(i);
-            request_protectees[i] = new LazyWebUserInfo();
+            request_protectees[i] = new LazyWebUser();
             request_protectees[i].setAsPeer(peer);
         }
         for (int i = 0; i < json_guardians.length(); i++) {
             JSONObject peer = json_guardians.getJSONObject(i);
-            guardians[i] = new LazyWebUserInfo();
+            guardians[i] = new LazyWebUser();
             guardians[i].setAsPeer(peer);
         }
         for (int i = 0; i < json_request_guardians.length(); i++) {
             JSONObject peer = json_request_guardians.getJSONObject(i);
-            request_guardians[i] = new LazyWebUserInfo();
+            request_guardians[i] = new LazyWebUser();
             request_guardians[i].setAsPeer(peer);
         }
 

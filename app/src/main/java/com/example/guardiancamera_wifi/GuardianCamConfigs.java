@@ -6,18 +6,20 @@ public class GuardianCamConfigs {
     final static int [] FRAME_SIZE_QCIF = {320, 240};
     final static int [] FRAME_SIZE_VGA = {640, 480};
     final static int [] FRMAE_SIZE_SVGA = {800, 600};
+    final static int [] FRMAE_SIZE_HD = {1280, 720};
+    final static int [] FRAME_SIZE_FHD = {1920, 1080};
 
     // Output Method Macros
-    final static int OUTPUT_EXTERNAL_CAM = 0;
-    final static int OUTPUT_PHONE_CAM = 1;
+    final static int INPUT_EXTERNAL_CAM = 0;
+    final static int INPUT_PHONE_CAM = 1;
 
     // Output Formats
     final static int FMT_MJPEG = 0;
     final static int FMT_RGB565 = 1;
 
-    public int outputMethod;
-    public int [] frameSize;
-    public int format;
+    public int inputSource;
+    public int [] inputSize;
+    public int inputFormat;
 
 
     /**
@@ -26,20 +28,23 @@ public class GuardianCamConfigs {
      *      Todo: Restrict Framesize when RGB565 format is selected
      */
     GuardianCamConfigs() {
-        outputMethod = OUTPUT_EXTERNAL_CAM;
-        frameSize = FRAME_SIZE_QCIF;
-        format = FMT_MJPEG;
+        inputSource = INPUT_EXTERNAL_CAM;
+        inputSize = FRAME_SIZE_QCIF;
+        inputFormat = FMT_MJPEG;
     }
 
-    public void setFrameSize(int [] newSize) {
-        frameSize = newSize;
+
+    public void setInputSize(int [] newSize) {
+        inputSize = newSize;
     }
+
 
     public void setMode(int newMode) {
-        outputMethod = newMode;
+        inputSource = newMode;
     }
 
-    public void setFormat(int newFormat) {
-        format = newFormat;
+
+    public void setInputFormat(int newFormat) {
+        inputFormat = newFormat;
     }
 }

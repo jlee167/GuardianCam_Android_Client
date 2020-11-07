@@ -27,21 +27,21 @@ import java.util.Arrays;
 class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.mViewHolder> {
 
     // Dataset Array containing peer info objects
-    ArrayList<LazyWebUserInfo> dataset;
+    ArrayList<LazyWebUser> dataset;
 
 
     public RecyclerViewAdapter() {
-        dataset = new ArrayList<LazyWebUserInfo>();
+        dataset = new ArrayList<LazyWebUser>();
     }
 
 
-    public RecyclerViewAdapter(ArrayList<LazyWebUserInfo> inputDataset) {
-       dataset = new ArrayList<LazyWebUserInfo>();
+    public RecyclerViewAdapter(ArrayList<LazyWebUser> inputDataset) {
+       dataset = new ArrayList<LazyWebUser>();
        dataset.addAll(inputDataset);
     }
 
 
-    public void addItem(LazyWebUserInfo dataIn) {
+    public void addItem(LazyWebUser dataIn) {
         dataset.add(dataIn);
     }
 
@@ -125,7 +125,7 @@ public class PeersActivity extends AppCompatActivity {
     RecyclerView.Adapter peerListAdapter;
     LinearLayoutManager layoutManager;
 
-    ArrayList<LazyWebUserInfo> peers_array;
+    ArrayList<LazyWebUser> peers_array;
     LazyWebPeerGroups peers;
 
     final int initialArraySize = 10;
@@ -177,11 +177,11 @@ public class PeersActivity extends AppCompatActivity {
             finish();
         }
 
-        peers_array = new ArrayList<LazyWebUserInfo>(this.initialArraySize);
-        LazyWebUserInfo [] protectees = peers.getProtectees();
-        LazyWebUserInfo [] guardians = peers.getGuardians();
-        LazyWebUserInfo [] requests_protectees = peers.getProtecteeRequests();
-        LazyWebUserInfo [] requests_guardians = peers.getGuardianRequests();
+        peers_array = new ArrayList<LazyWebUser>(this.initialArraySize);
+        LazyWebUser[] protectees = peers.getProtectees();
+        LazyWebUser[] guardians = peers.getGuardians();
+        LazyWebUser[] requests_protectees = peers.getProtecteeRequests();
+        LazyWebUser[] requests_guardians = peers.getGuardianRequests();
 
         peers_array.addAll(Arrays.asList(requests_protectees));
         peers_array.addAll(Arrays.asList(requests_guardians));

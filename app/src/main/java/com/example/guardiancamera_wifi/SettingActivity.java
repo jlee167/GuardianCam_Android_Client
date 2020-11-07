@@ -17,24 +17,24 @@ public class SettingActivity extends AppCompatActivity {
     Button saveConfigBtn;
 
     private void updateWidgets() {
-        if (app_configs.frameSize == GuardianCamConfigs.FRAME_SIZE_QCIF) {
+        if (app_configs.inputSize == GuardianCamConfigs.FRAME_SIZE_QCIF) {
             resolutions.check(R.id.qcif);
-        } else if (app_configs.frameSize == GuardianCamConfigs.FRAME_SIZE_VGA) {
+        } else if (app_configs.inputSize == GuardianCamConfigs.FRAME_SIZE_VGA) {
             resolutions.check(R.id.vga);
-        } else if (app_configs.frameSize == GuardianCamConfigs.FRMAE_SIZE_SVGA) {
+        } else if (app_configs.inputSize == GuardianCamConfigs.FRMAE_SIZE_SVGA) {
             resolutions.check(R.id.svga);
         }
 
-        switch (app_configs.outputMethod) {
-            case GuardianCamConfigs.OUTPUT_EXTERNAL_CAM:
+        switch (app_configs.inputSource) {
+            case GuardianCamConfigs.INPUT_EXTERNAL_CAM:
                 modes.check(R.id.externalCamera);
                 break;
-            case GuardianCamConfigs.OUTPUT_PHONE_CAM:
+            case GuardianCamConfigs.INPUT_PHONE_CAM:
                 modes.check(R.id.phone);
                 break;
         }
 
-        switch (app_configs.format) {
+        switch (app_configs.inputFormat) {
             case GuardianCamConfigs.FMT_MJPEG:
                 formats.check(R.id.mjpeg);
                 break;
@@ -47,37 +47,37 @@ public class SettingActivity extends AppCompatActivity {
     private void configChangeHandler() {
         switch (resolutions.getCheckedRadioButtonId()) {
             case R.id.qcif:
-                app_configs.setFrameSize(GuardianCamConfigs.FRAME_SIZE_QCIF);
+                app_configs.setInputSize(GuardianCamConfigs.FRAME_SIZE_QCIF);
                 MyApplication.applicationLog("Capture Resolution: 320x240\n");
                 break;
             case R.id.vga:
-                app_configs.setFrameSize(GuardianCamConfigs.FRAME_SIZE_VGA);
+                app_configs.setInputSize(GuardianCamConfigs.FRAME_SIZE_VGA);
                 MyApplication.applicationLog("Capture Resolution: 640x480\n");
                 break;
             case R.id.svga:
-                app_configs.setFrameSize(GuardianCamConfigs.FRMAE_SIZE_SVGA);
+                app_configs.setInputSize(GuardianCamConfigs.FRMAE_SIZE_SVGA);
                 MyApplication.applicationLog("Capture Resolution: 800x600\n");
                 break;
         }
 
         switch (formats.getCheckedRadioButtonId()) {
             case R.id.mjpeg:
-                app_configs.setFormat(GuardianCamConfigs.FMT_MJPEG);
+                app_configs.setInputFormat(GuardianCamConfigs.FMT_MJPEG);
                 MyApplication.applicationLog("Capture Format: MJPEG\n");
                 break;
             case R.id.rgb565:
-                app_configs.setFormat(GuardianCamConfigs.FMT_RGB565);
+                app_configs.setInputFormat(GuardianCamConfigs.FMT_RGB565);
                 MyApplication.applicationLog("Capture Format: RGB565\n");
                 break;
         }
 
         switch (modes.getCheckedRadioButtonId()) {
             case R.id.externalCamera:
-                app_configs.setMode(GuardianCamConfigs.OUTPUT_EXTERNAL_CAM);
+                app_configs.setMode(GuardianCamConfigs.INPUT_EXTERNAL_CAM);
                 MyApplication.applicationLog("Capture Mode: Camera Module\n");
                 break;
             case R.id.phone:
-                app_configs.setMode(GuardianCamConfigs.OUTPUT_PHONE_CAM);
+                app_configs.setMode(GuardianCamConfigs.INPUT_PHONE_CAM);
                 MyApplication.applicationLog("Capture Mode: Phone Camera\n");
                 break;
         }

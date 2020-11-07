@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,9 +23,11 @@ import com.kakao.auth.network.response.AccessTokenInfoResponse;
 import com.kakao.network.ErrorResult;
 import com.kakao.util.exception.KakaoException;
 
-import org.json.JSONException;
-
 import java.io.IOException;
+
+
+
+
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -75,8 +76,8 @@ public class LoginActivity extends AppCompatActivity {
 
             // Connect to Lazyweb authentication server and retrieve this user's personal information
             try {
-                MyApplication.authHandler = new LazywebAuthHandler(getApplicationContext(),
-                                                            LazywebAuthHandler.AUTHENTICATOR_KAKAO);
+                MyApplication.authHandler = new LazyWebAuthHandler(getApplicationContext(),
+                                                            LazyWebAuthHandler.AUTHENTICATOR_KAKAO);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -197,8 +198,8 @@ public class LoginActivity extends AppCompatActivity {
 
             // Connect to Lazyweb authentication server and retrieve this user's personal information
             try {
-                MyApplication.authHandler = new LazywebAuthHandler(getApplicationContext(),
-                        LazywebAuthHandler.AUTHENTICATOR_GOOGLE);
+                MyApplication.authHandler = new LazyWebAuthHandler(getApplicationContext(),
+                        LazyWebAuthHandler.AUTHENTICATOR_GOOGLE);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;
@@ -210,8 +211,8 @@ public class LoginActivity extends AppCompatActivity {
             intent.putExtra(getResources().getString(R.string.INDEX_LOGIN_METHOD), getResources().getString(R.string.LOGIN_KAKAO));
 
             try {
-                MyApplication.authHandler = new LazywebAuthHandler(getApplicationContext(),
-                        LazywebAuthHandler.AUTHENTICATOR_KAKAO);
+                MyApplication.authHandler = new LazyWebAuthHandler(getApplicationContext(),
+                        LazyWebAuthHandler.AUTHENTICATOR_KAKAO);
             } catch (IOException e) {
                 e.printStackTrace();
                 return;

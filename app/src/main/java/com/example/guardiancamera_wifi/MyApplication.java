@@ -15,17 +15,17 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class MyApplication extends Application {
 
     // Current user using this application
-    static LazyWebUserInfo currentUser;
+    static LazyWebUser currentUser;
 
     // AuthHandler for fetching peer list
-    static LazywebAuthHandler authHandler;
+    static LazyWebAuthHandler authHandler;
 
     // Application & Peripheral Configuration
     static GuardianCamConfigs configs;
 
     static ConcurrentLinkedDeque<String> appLogs;
 
-    public static void setCurrentUser(LazyWebUserInfo userinfo) {
+    public static void setCurrentUser(LazyWebUser userinfo) {
         currentUser = userinfo;
     }
     public static MutableLiveData<ConcurrentLinkedDeque<String>> applicationLogLiveData = new MutableLiveData<ConcurrentLinkedDeque<String>>();
