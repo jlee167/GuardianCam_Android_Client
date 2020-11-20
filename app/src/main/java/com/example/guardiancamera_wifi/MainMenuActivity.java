@@ -1,111 +1,27 @@
 package com.example.guardiancamera_wifi;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 
-import org.json.JSONException;
+import net.daum.mf.map.api.MapView;
 
-import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedDeque;
-
-
-
-
-class UserInterfaceHandler {
-
-    /**
-     * Create activity intents and initialize control buttons' UI.
-     * Connect respective buttons to corresponding services and activities.
-     */
-    static void initButtonsUI(final AppCompatActivity activity) {
-        // Views for control buttons
-        final TextView captureServiceBtn;
-        TextView viewVideoBtn;
-        TextView peerListBtn;
-        TextView settingBtn;
-        TextView homeBtn;
-        Toolbar toolbar;
-
-        toolbar = activity.findViewById(R.id.mainToolbar);
-
-        toolbar.setTitle("Lazyboy's GuardianCam");
-        toolbar.setTitleTextColor(Color.WHITE);
-        toolbar.inflateMenu(R.menu.menu);
-        //activity.setSupportActionBar(toolbar);
-
-
-        final Intent captureIntent = new Intent(activity, CamStreamer.class);
-        captureIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
-        captureServiceBtn = activity.findViewById(R.id.captureStartBtn);
-
-        captureServiceBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!CamStreamer.isRunning()) {
-                    activity.startService(captureIntent);
-                    captureServiceBtn.setText(R.string.MENU_STOP_CAPTURE);
-                } else {
-                    activity.stopService(captureIntent);
-                    captureServiceBtn.setText(R.string.MENU_START_CAPTURE);
-                }
-            }
-        });
-
-        final Intent MainMenuIntent = new Intent(activity, MainMenuActivity.class);
-        MainMenuIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
-        homeBtn = (TextView) activity.findViewById(R.id.homeBtn);
-        homeBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startActivity(MainMenuIntent);
-            }
-        });
-
-        final Intent videoViewIntent = new Intent(activity, VideoViewActivity.class);
-        videoViewIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
-        viewVideoBtn = (TextView) activity.findViewById(R.id.videoViewBtn);
-        viewVideoBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startActivity(videoViewIntent);
-            }
-        });
-
-        final Intent peerListIntent = new Intent(activity, PeersActivity.class);
-        peerListIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
-        peerListBtn = (TextView) activity.findViewById(R.id.peerListBtn);
-        peerListBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startActivity(peerListIntent);
-            }
-        });
-
-        final Intent settingIntent = new Intent(activity, SettingActivity.class);
-        settingIntent.putExtras(Objects.requireNonNull(activity.getIntent().getExtras()));
-        settingBtn = (TextView) activity.findViewById(R.id.settingBtn);
-        settingBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                activity.startActivity(settingIntent);
-            }
-        });
-    }
-}
-
 
 
 public class MainMenuActivity extends AppCompatActivity {
@@ -115,17 +31,30 @@ public class MainMenuActivity extends AppCompatActivity {
     TextView viewVideoBtn;
     TextView peerListBtn;
     TextView settingBtn;
+    TextView homeBtn;
 
     // Status flags for camera and server
     boolean statCamRecording;
     boolean statCamConnection;
     boolean statServerConnection;
 
+    // Camera configuration
+    GuardianCamConfigs cameraConfig;
 
 
-    private void changeFragment(int containerId, Fragment newFragment) {
+
+
+    /**
+     * Helper function for changing fragment
+     *
+     * @param newFragment Target Fragment
+     */
+    private void changeFragment(Fragment newFragment) {
+        FrameLayout container = (FrameLayout) findViewById(R.id.contentsFrame);
+        container.removeAllViews();
+
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(containerId, newFragment);
+        transaction.add(R.id.contentsFrame, newFragment);
         transaction.commit();
     }
 
@@ -159,7 +88,7 @@ public class MainMenuActivity extends AppCompatActivity {
         final Intent videoViewIntent = new Intent(this, VideoViewActivity.class);
         videoViewIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
         viewVideoBtn = (TextView) findViewById(R.id.videoViewBtn);
-        viewVideoBtn.setText("New Char");
+        viewVideoBtn.setText("View Video");
         viewVideoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,25 +106,55 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         });
 
-        //final Intent settingIntent = new Intent(this, SettingActivity.class);
-        //settingIntent.putExtras(Objects.requireNonNull(this.getIntent().getExtras()));
         settingBtn = (TextView) findViewById(R.id.settingBtn);
         settingBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                changeFragment(R.id.contentsFrame, new SettingsFragment());
-                //startActivity(settingIntent);
+                //Fragment settingFragment = new SettingsFragment();
+                //while (settingFragment.i)
+                changeFragment(new SettingsFragment());
+            }
+        });
+
+
+        homeBtn = (TextView) findViewById(R.id.homeBtn);
+        homeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment homeFragment = new HomeFragment();
+                changeFragment(homeFragment);
+
             }
         });
     }
 
 
-
-
+    /**
+     *
+     *
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+
+
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md;
+                md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                String something = new String(Base64.encode(md.digest(), 0));
+                Log.e("Hash key", something);
+            }
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            Log.e("name not found", e.toString());
+        }
+
 
         // Initialize status flags
         statCamRecording = false;
@@ -208,6 +167,15 @@ public class MainMenuActivity extends AppCompatActivity {
         // Initialize Control Buttons
         initButtonsUI();
 
+        // Initialize Camera
+        cameraConfig = new GuardianCamConfigs();
+
+
+        /**
+         *      Home Fragment Setup
+         */
+        /*
+        // Log Window Setup
         TextView logWindow = findViewById(R.id.logWindow);
         logWindow.setMovementMethod(new ScrollingMovementMethod());
 
@@ -221,6 +189,10 @@ public class MainMenuActivity extends AppCompatActivity {
                     log.append((String)strings.toArray()[i]);
             }
         };
+        */
+        //SharedPreferences userPref = PreferenceManager.getDefaultSharedPreferences(this);
+        //String name = userPref.getString("list_preference_1","");
+
 
 /*
         MyApplication.applicationLogLiveData.observe(this,observer);
@@ -271,9 +243,10 @@ public class MainMenuActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
  */
     }
+
+
 
 
     @Override
@@ -283,6 +256,8 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
 
+
+
     @Override
     protected void onResume() {
 
@@ -290,11 +265,15 @@ public class MainMenuActivity extends AppCompatActivity {
     }
 
 
+
+
     @Override
     protected void onPause() {
 
         super.onPause();
     }
+
+
 
 
     @Override

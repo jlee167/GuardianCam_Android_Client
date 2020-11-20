@@ -175,6 +175,7 @@
         android:layout_height="60dp"
         android:background="@drawable/singin_button"
         android:text="SIGN UP"
+        android:textColor="#F48DB0"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -1,5 +1,6 @@
 package com.example.guardiancamera_wifi;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,10 @@ import androidx.fragment.app.Fragment;
 public class InfoScreenFragment extends Fragment {
 
     public InfoScreenFragment() {
+    }
+
+    public InfoScreenFragment(Activity parentActivity) {
+
     }
 
     @Nullable

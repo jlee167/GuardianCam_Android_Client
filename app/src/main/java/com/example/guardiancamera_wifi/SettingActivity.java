@@ -103,7 +103,7 @@ public class SettingActivity extends AppCompatActivity {
             }
         });
 
-        UserInterfaceHandler.initButtonsUI(this);
+
     }
 
 

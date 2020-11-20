@@ -148,7 +148,7 @@ public class PeersActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         peerListView.setLayoutManager(layoutManager);
 
-        UserInterfaceHandler.initButtonsUI(this);
+        //UserInterfaceHandler.initButtonsUI(this);
     }
 
 
@@ -162,9 +162,7 @@ public class PeersActivity extends AppCompatActivity {
                 public void run() {
                     try {
                         peers = MyApplication.authHandler.getPeers();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (JSONException e) {
+                    } catch (IOException | JSONException e) {
                         e.printStackTrace();
                     }
                 }

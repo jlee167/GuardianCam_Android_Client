@@ -19,7 +19,7 @@ public class VideoViewActivity extends AppCompatActivity {
         //Todo: Change URL to MJPEG stream HTML page
         videoView.loadUrl("https://www.google.com");
 
-        UserInterfaceHandler.initButtonsUI(this);
+        //UserInterfaceHandler.initButtonsUI(this);
     }
 
     @Override

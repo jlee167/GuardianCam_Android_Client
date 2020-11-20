@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".VideoViewActivity">
 
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/mainToolbar"
         android:layout_width="match_parent"
